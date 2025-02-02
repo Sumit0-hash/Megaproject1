@@ -26,7 +26,7 @@ connectDB()
 
 // IIFE(Immediately Invoked Function Expression) approach:-
 /*
-;( async ()=>{
+;( async ()=>{ // ; is applied before for cleaning purpose. 
     try {
         await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
         app.on("error",(error)=>{
@@ -41,5 +41,5 @@ connectDB()
         console.error("ERROR",error)
         throw err
     }
-})()  // ; is applied before for cleaning purpose. 
+})()  
 */
