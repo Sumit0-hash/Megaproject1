@@ -2,11 +2,8 @@ import dotenv from "dotenv"
 // import mongoose from "mongoose"
 // import { DB_NAME } from "./constants";
 import connectDB from "./db/index.js";
-import express from "express"
-
+import { app } from "./app.js"  // Import the configured app
 dotenv.config({path:'./env'})  //dotenv should be loaded asap.
-
-const app=express()
 
 connectDB()
 .then(()=>{

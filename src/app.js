@@ -14,4 +14,11 @@ app.use(express.urlencoded({extended:true,limit:"16kb"}))  // extended allows to
 app.use(express.static("public"))  // static is used to store public assets.
 app.use(cookieParser())
 
+// import Routes
+import userRouter from './routes/user.routes.js'
+
+// routes declaration
+app.use("/api/v1/users",userRouter)
+
+
 export { app }
