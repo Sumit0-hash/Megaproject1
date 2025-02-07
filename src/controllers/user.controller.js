@@ -1,6 +1,6 @@
 import {asyncHandler} from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiErrors.js";
-import { user } from "../models/User.js";
+import { User } from "../models/user.model.js";
 import {uploadOnCloudinary} from "../utils/Cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 
@@ -15,27 +15,29 @@ const registerUser=asyncHandler( async (req,res)=>{
     // check for user creation.
     // return response.
 
-    const {fullName,email,username,password}=req.body
-    console.log("email:",email);
+    const {fullname,email,username,password}=req.body
     
     if (
-        [fullName,email,username,password].some((field)=>field?.trim()==="")
+        [fullname, email, username, password].some((field) => field?.trim() === "")
     ) {
         return new ApiError(400,"All fields are required !");
     }
-    const existedUser=UserActivation.findOne({
+    const existedUser=await User.findOne({
         $or: [{ username } , { email }]
     })
     if (existedUser) {
         throw new ApiError(409,"User with email or username already exists.")
     }
 
-    const avtarLocalPath=req.files?.avtar[0]?.path;
-    const coverImageLocalPath=req.files?.coverImage[0]?.path;
+    const avtarLocalPath = req.files?.avtar[0]?.path.replace(/\\/g, "/");
+    const coverImageLocalPath = req.files?.coverImage[0]?.path.replace(/\\/g, "/");
     //checking the images:-
     if (!avtarLocalPath) {
+        console.error("Avatar Upload Failed! Path:", avtarLocalPath);
         throw new ApiError(400,"Please upload an avtar");
     }
+    console.log("req.files:", req.files);
+
     //uploading on cloudinary:-
     const avtar= await uploadOnCloudinary(avtarLocalPath)
     const coverImage= await uploadOnCloudinary(coverImageLocalPath)
@@ -44,8 +46,8 @@ const registerUser=asyncHandler( async (req,res)=>{
         throw new ApiError(400, "Failed to upload avtar");
     }
     //creating user object:-
-    const user=await user.create({
-        fullName,
+    const user=await User.create({
+        fullname,
         avtar:avtar.url,
         coverImage:coverImage?.url||"",
         email,
@@ -53,7 +55,7 @@ const registerUser=asyncHandler( async (req,res)=>{
         username:username.toLowerCase()
     })
     //check for user creation:-
-    const createdUser=await user.findById(user._id).select(  //In .select,we define the fields we do not want. 
+    const createdUser=await User.findById(user._id).select(  //In .select,we define the fields we do not want. 
         "-password -refreshToken"
     )
     if(!createdUser){

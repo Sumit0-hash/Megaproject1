@@ -1,30 +1,42 @@
-// File upload
-import { v2 as cloudinary} from "cloudinary";
-import fs from "fs";  //fs is file system(helps in read,write,remove,etc)
-// Files will come according to file system.
-// Note:When file is successfully uploaded,we will delete/unlink it.
+import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
 
+// Configure Cloudinary
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key:process.env.CLOUDINARY_API_KEY,
-    api_secret:process.env.CLOUDINARY_API_SECRET
-})
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
-const uploadOnCloudinary=async (localFilePath)=>{
+const uploadOnCloudinary = async (localFilePath) => {
     try {
-        if(!localFilePath) return null
-        // upload the file in cloudinary
-        const response=await cloudinary.uploader.upload(localFilePath,{
-            resource_type:"auto"
-        })
-        //file has been uploaded successfully
-        console.log("File uploaded Successfully on Cloudinary!!",response.url) //response.url will give us public url.
+        if (!localFilePath) throw new Error("No file path provided");
+
+        // Convert Windows paths to Unix-style (fix for Windows)
+        localFilePath = localFilePath.replace(/\\/g, "/");
+
+        console.log("📤 Uploading file to Cloudinary:", localFilePath);
+
+        // Upload file to Cloudinary
+        const response = await cloudinary.uploader.upload(localFilePath, {
+            resource_type: "auto",
+        });
+
+        console.log("✅ File uploaded successfully:", response.url);
+
+        // Delete the local file after successful upload
+        fs.unlinkSync(localFilePath)  // unlinkSync is used for synchronous deletion(stop and execute).
         return response;
     } catch (error) {
-        fs.unlinkSync(localFilePath) //remove the locally saved temporary file as upload operation got failed.'
+        console.error("❌ Cloudinary Upload Error:", error.message);
+
+        // Delete the file only if it exists
+        if (fs.existsSync(localFilePath)) {
+            fs.unlinkSync(localFilePath);
+        }
+
         return null;
     }
+};
 
-}
-
-export {uploadOnCloudinary}
+export { uploadOnCloudinary };
