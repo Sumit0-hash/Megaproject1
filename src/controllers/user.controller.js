@@ -30,7 +30,12 @@ const registerUser=asyncHandler( async (req,res)=>{
     }
 
     const avtarLocalPath = req.files?.avtar[0]?.path.replace(/\\/g, "/");
-    const coverImageLocalPath = req.files?.coverImage[0]?.path.replace(/\\/g, "/");
+    // const coverImageLocalPath = req.files?.coverImage[0]?.path.replace(/\\/g, "/");
+
+    let coverImageLocalPath;
+    if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
+        coverImageLocalPath = req.files.coverImage[0].path
+    }
     //checking the images:-
     if (!avtarLocalPath) {
         console.error("Avatar Upload Failed! Path:", avtarLocalPath);
