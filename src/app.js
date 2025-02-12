@@ -13,7 +13,7 @@ app.use(cors({
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))  // extended allows to sent objects inside objects.
 app.use(express.static("public"))  // static is used to store public assets.
-app.use(cookieParser())
+app.use(cookieParser()) // by cookieParser we can access cookie.
 
 // import Routes
 import userRouter from './routes/user.routes.js'
