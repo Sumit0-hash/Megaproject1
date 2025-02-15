@@ -2,6 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiErrors.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+// import { uploadOnCloudinary,deleteFromCloudinary } from "../utils/Cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
@@ -256,7 +257,7 @@ const updateAccountDetails=asyncHandler(async(req,res)=>{
   if(!(fullname||email)){
     throw new ApiError(400,"All fields are required !")
   }
-  const user=User.findByIdAndUpdate(
+  const user=await User.findByIdAndUpdate(
     req.user?._id,
     {
       $set:{
@@ -282,6 +283,11 @@ const updateUserAvtar=asyncHandler(async(req,res)=>{
     throw new ApiError(400,"Error while uploading avatar !")
   }
 
+
+  // Fetch the current user to get the old avatar URL
+  // const currUser=await User.findById(req.user?._id)
+  // const oldAvtar=await currUser?.avtar
+
   const user=await User.findByIdAndUpdate(
     req.user?._id,
     {
@@ -291,12 +297,16 @@ const updateUserAvtar=asyncHandler(async(req,res)=>{
     },
     {new:true}
   ).select("-password")
+
+  //Deleting old image:-
+  // if(oldAvtar){
+  //   await deleteFromCloudinary(oldAvtar)
+  // }
+  
   return res
   .status(200)
   .json(
-    200,
-    user,
-    "Avatar image uploaded successfully !"
+    new ApiResponse(200,user,"Avtar updated Successfully !")
   )
   
 })
