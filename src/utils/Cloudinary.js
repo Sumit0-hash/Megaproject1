@@ -28,8 +28,6 @@ const uploadOnCloudinary = async (localFilePath) => {
     fs.unlinkSync(localFilePath); // unlinkSync is used for synchronous deletion(stop and execute).
     return response;
   } catch (error) {
-    console.error("❌ Cloudinary Upload Error:", error.message);
-
     // Delete the file only if it exists
     if (fs.existsSync(localFilePath)) {
       fs.unlinkSync(localFilePath);
